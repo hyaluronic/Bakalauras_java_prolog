@@ -5,7 +5,12 @@
     <title>Title</title>
 </head>
 <body>
-<h1 th:text="${something}"/>
-
+<form action="#" th:action="@{/}" th:object="${theorem}" method="post">
+    <input type="text" th:field="*{value}" />
+    <input type="submit" />
+</form>
+<h1>
+    Answer: <h1 th:text="${result}"/>
+</h1>
 </body>
 </html>
