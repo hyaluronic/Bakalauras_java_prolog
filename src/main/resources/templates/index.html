@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sequent Calculus Visualizer</title>
+    <link rel="stylesheet" th:href="@{/css/visualizer.css}" />
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script th:src="@{/js/visualizer.js}"></script>
+</head>
+<body>
+<div id="tree-container"></div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("/theorem")
+                .then(response => response.json())
+                .then(data => {
+                    visualizeTree(data, document.getElementById("tree-container"));
+                });
+        });
+    </script>
+</body>
+</html>
