@@ -55,7 +55,7 @@ function visualizeTree(treeData, container) {
             .attr("transform", (d) => "translate(" + d.y + "," + d.x + ")");
 
         nodeUpdate.select("circle")
-            .attr("r", 10
+            .attr("r", 10)
             .style("fill", (d) => d._children ? "lightsteelblue" : "#fff");
 
         nodeUpdate.select("text")

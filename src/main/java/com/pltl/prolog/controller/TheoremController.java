@@ -9,29 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-
 @RestController
 public class TheoremController {
 
     @Autowired
     private PrologQuery prologQuery;
-
-//    @RequestMapping(value = "/")
-//    public String defaultTheorem(Model model) {
-//        String theorem = "[c, g, neg p, a, p, d] => [s]";
-//        Map<String, Term> result = prologQuery.queryProve(theorem);
-//        model.addAttribute("theorem", new Theorem());
-//        model.addAttribute("result", result);
-//        return "test"; // view resolver
-//    }
-//
-//    @PostMapping(value = "/")
-//    public String proveTheorem(@ModelAttribute Theorem theorem, Model model) {
-//        Map<String, Term> result = prologQuery.queryProve(theorem.getValue());
-//        model.addAttribute("result", result);
-//        return "test";
-//    }
 
     @GetMapping(value = "/theorem")
     public ResponseEntity<String> getSequentCalculusAnswer() throws JsonProcessingException {
@@ -42,28 +24,28 @@ public class TheoremController {
         String theorem = "[a, b] => [a and b,c,d,e,r]";
         TreeNode result = prologQuery.queryProve(theorem);
 
-        TreeNode treeNode1 = new TreeNode();
-        treeNode1.setValue("first");
+//        TreeNode treeNode1 = new TreeNode();
+//        treeNode1.setValue("first");
+//
+//        TreeNode treeNode2 = new TreeNode();
+//        treeNode2.setValue("second left");
+//
+//        TreeNode treeNode3 = new TreeNode();
+//        treeNode3.setValue("second right");
+//
+//        TreeNode treeNode4 = new TreeNode();
+//        treeNode4.setValue("third right center");
+//
+//        ArrayList<TreeNode> a = new ArrayList<>();
+//        a.add(treeNode2);
+//        a.add(treeNode3);
+//        treeNode1.setChildren(a);
+//
+//        ArrayList<TreeNode>  b = new ArrayList<>();
+//        b.add(treeNode4);
+//        treeNode3.setChildren(b);
 
-        TreeNode treeNode2 = new TreeNode();
-        treeNode2.setValue("second left");
-
-        TreeNode treeNode3 = new TreeNode();
-        treeNode3.setValue("second right");
-
-        TreeNode treeNode4 = new TreeNode();
-        treeNode4.setValue("third right center");
-
-        ArrayList<TreeNode> a = new ArrayList<>();
-        a.add(treeNode2);
-        a.add(treeNode3);
-        treeNode1.setChildren(a);
-
-        ArrayList<TreeNode>  b = new ArrayList<>();
-        b.add(treeNode4);
-        treeNode3.setChildren(b);
-
-        String jsonAnswer = objectMapper.writeValueAsString(treeNode1);
+        String jsonAnswer = objectMapper.writeValueAsString(result);
         return ResponseEntity.ok(jsonAnswer);
     }
 }
