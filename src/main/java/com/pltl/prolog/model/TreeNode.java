@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class TreeNode {
-    private String value;
+    private String name;
     private String rule;
     private List<TreeNode> children;
 

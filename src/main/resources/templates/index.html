@@ -2,9 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Sequent Calculus Visualizer</title>
-    <link rel="stylesheet" th:href="@{/css/visualizer.css}" />
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-    <script th:src="@{/js/visualizer.js}"></script>
+<!--    <link rel="stylesheet" th:href="@{/css/visualizer.css}" />-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.4/d3.min.js"></script>
+    <script src="https://d3js.org/d3-hierarchy.v1.min.js"></script>
+<!--    <script th:src="@{/js/visualizer.js}"></script>-->
+    <style>
+
+	.node circle {
+	  fill: #fff;
+	  stroke: steelblue;
+	  stroke-width: 3px;
+	}
+
+	.node text { font: 12px sans-serif; }
+
+	.link {
+	  fill: none;
+	  stroke: #ccc;
+	  stroke-width: 2px;
+	}
+
+    </style>
 </head>
 <body>
 <div id="tree-container"></div>
@@ -16,118 +34,92 @@
                     visualizeTree(data, document.getElementById("tree-container"));
                 });
         });
-        function visualizeTree(treeData, container) {
-            const margin = { top: 20, right: 90, bottom: 30, left: 250 };
-            const width = 960 - margin.left - margin.right;
-            const height = 500 - margin.top - margin.bottom;
 
-            const svg = d3.select(container)
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+// ************** Generate the tree diagram	 *****************
+function visualizeTree (treeData, container) {
+    var margin = {top: 40, right: 120, bottom: 20, left: 120},
+        width = 960 - margin.right - margin.left,
+        height = 500 - margin.top - margin.bottom;
 
-            const tree = d3.tree().size([height, width]);
+    var i = 0;
 
-            const root = d3.hierarchy(treeData);
-            root.x0 = height / 2;
-            root.y0 = 0;
+    var tree = d3.tree()
+        .size([height, width])
+        .separation(function separation(a, b) { return a.parent == b.parent ? 200 : 2; });
+    console.log(tree);
+    console.log(treeData);
 
-            update(root);
+    var diagonal = d3.linkHorizontal()
+        .x(function(d) { return d.y; })
+        .y(function(d) { return d.x; });
 
-            function update(source) {
-                const treeData = tree(root);
-                const nodes = treeData.descendants();
-                const links = treeData.descendants().slice(1);
+    var svg = d3.select(container).append("svg")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                nodes.forEach((d) => d.y = d.depth * 180);
+    root = d3.hierarchy(treeData);
+    console.log(root);
 
-        let i = 0;
-                const node = svg.selectAll("g.node")
-                    .data(nodes, (d) => d.id || (d.id = ++i));
+    update(root);
 
-                const nodeEnter = node.enter().append("g")
-                    .attr("class", "node")
-                    .attr("transform", (d) => "translate(" + source.y0 + "," + source.x0 + ")")
-                    .on("click", (event, d) => {
-                        d.children = d.children ? null : d._children;
-                        update(d);
-                    });
+    function update(source) {
+        // Compute the new tree layout.
+        var nodes = source.descendants(),
+            links = source.links();
 
-                nodeEnter.append("circle")
-                    .attr("r", 1e-6)
-                    .style("fill", (d) => d._children ? "lightsteelblue" : "#fff");
+        // Normalize for fixed-depth.
+        nodes.forEach(function(d) { d.y = d.depth * 100;
+                                    d.x = d.height * 100; });
 
-                nodeEnter.append("text")
-                    .attr("x", (d) => d.children || d._children ? -13 : 13)
-                    .attr("dy", ".35em")
-                    .attr("text-anchor", (d) => d.children || d._children ? "end" : "start")
-                    .text((d) => d.data.value)
-                    .style("fill-opacity", 1e-6);
+        // Declare the nodes…
+        var node = svg.selectAll("g.node")
+          .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
-                const nodeUpdate = nodeEnter.merge(node);
+        // Enter the nodes.
+        var nodeEnter = node.enter().append("g")
+          .attr("class", "node")
+          .attr("transform", function(d) {
+              return "translate(" + d.y + "," + d.x + ")"; });
 
-                nodeUpdate.transition()
-                    .duration(750)
-                    .attr("transform", (d) => "translate(" + d.y + "," + d.x + ")");
+        nodeEnter.append("text")
+            .attr("y", function(d) {
+              return d.children || d._children ? -18 : 18; })
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .text(function(d) { return d.data.name; })
+            .style("fill-opacity", 1);
 
-                nodeUpdate.select("circle")
-                    .attr("r", 10)
-                    .style("fill", (d) => d._children ? "lightsteelblue" : "#fff");
+        nodeEnter.append("text")
+            .attr("y", function(d) {
+              return d.children || d._children ? -32 : 32; })
+            .attr("x", function(d) {
+              return d.x })
+            .attr("dy", ".35em")
+            .attr("text-anchor", "right")
+            .text(function(d) { return d.data.rule; })
+            .style("fill-opacity", 1);
 
-                nodeUpdate.select("text")
-                    .style("fill-opacity", 1);
+        nodeEnter.append('line')
+            .style("stroke", "#000")
+            .attr("y1", function(d) {
+              return d.children || d._children ? -32 : 32; })
+            .attr("y2", function(d) {
+              return d.children || d._children ? -32 : 32; })
+            .attr("x1", -100)
+            .attr("x2", 100);
 
-                const nodeExit = node.exit().transition()
-                    .duration(750)
-                    .attr("transform", (d) => "translate(" + source.y + "," + source.x + ")")
-                    .remove();
+        // Declare the links…
+        var link = svg.selectAll("path.link")
+          .data(links, function(d) { return d.target.id; });
 
-                nodeExit.select("circle")
-                    .attr("r", 1e-6);
-
-                nodeExit.select("text")
-                    .style("fill-opacity", 1e-6);
-
-                const link = svg.selectAll("path.link")
-                    .data(links, (d) => d.id);
-
-                const linkEnter = link.enter().insert("path", "g")
-                    .attr("class", "link")
-                    .attr("d", () => {
-                        const o = { x: source.x0, y: source.y0 };
-                        return diagonal(o, o);
-                    });
-
-                const linkUpdate = linkEnter.merge(link);
-
-                linkUpdate.transition()
-                    .duration(750)
-                    .attr("d", (d) => diagonal(d, d.parent));
-
-                link.exit().transition()
-                    .duration(750)
-                    .attr("d", () => {
-                        const o = { x: source.x, y: source.y };
-                        return diagonal(o, o);
-                    })
-                    .remove();
-
-                nodes.forEach((d) => {
-                    d.x0 = d.x;
-                    d.y0 = d.y;
-                });
-
-                function diagonal(s, d) {
-                    const path = `M ${s.y} ${s.x}
-                        C ${(s.y + d.y) / 2} ${s.x},
-                          ${(s.y + d.y) / 2} ${d.x},
-                          ${d.y} ${d.x}`;
-                    return path;
-                }
-            }
-        }
-    </script>
+        // Enter the links.
+        link.enter().insert("path", "g")
+          .attr("class", "link")
+          .attr("d", diagonal);
+    }
+}
+</script>
 </body>
 </html>

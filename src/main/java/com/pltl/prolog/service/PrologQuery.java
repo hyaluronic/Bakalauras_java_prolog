@@ -29,7 +29,7 @@ public class PrologQuery {
         }
 
         TreeNode root = new TreeNode();
-        root.setValue(theorem);
+        root.setName(theorem.replace("[","(").replace("]", ")"));
 
         return mapToTreeNode(root, result.get("X"));
     }
@@ -38,7 +38,7 @@ public class PrologQuery {
         TreeNode child1 = new TreeNode();
         Term argument1 = x.arg(1);
         root.setRule(argument1.arg(2).toString());
-        child1.setValue(argument1.arg(1).toString());
+        child1.setName(parseTheTerm(argument1.arg(1)));
 
         Term argument2 = x.arg(2).arg(1);
         if (!argument2.isAtom() && !argument2.arg(1).isAtom()) {
@@ -50,7 +50,7 @@ public class PrologQuery {
             TreeNode child2 = new TreeNode();
             Term argument3 = x.arg(2).arg(2).arg(1);
             root.setRule(argument3.arg(2).toString());
-            child2.setValue(argument3.arg(1).toString());
+            child2.setName(parseTheTerm(argument3.arg(1)));
 
             Term argument4 = x.arg(2).arg(2).arg(2).arg(1);
             if (!argument4.isAtom() && !argument4.arg(1).isAtom()) {
@@ -60,6 +60,12 @@ public class PrologQuery {
         } catch (Exception e) {
         }
         return root;
+    }
+
+    private String parseTheTerm(Term argument) {
+        return argument.arg(1).toString().replace("[","(").replace("]", ")")
+                + argument.name()
+                + argument.arg(2).toString().replace("[","(").replace("]", ")") ;
     }
 
 

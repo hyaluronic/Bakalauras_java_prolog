@@ -20,8 +20,8 @@ public class TheoremController {
         ObjectMapper objectMapper = new ObjectMapper();
 
 //        String theorem = "[c, g, neg p, a, p, d] => [s]";
-//        String theorem = "[c and g, neg s, a and b,  p, d] => [b and p and a, b, a]";
-        String theorem = "[a, b] => [a and b,c,d,e,r]";
+        String theorem = "[c and g, neg s, a and b,  p, d] => [b and p and a, b, a]";
+//        String theorem = "[a, b] => [a and b,c,d,e,r]";
         TreeNode result = prologQuery.queryProve(theorem);
 
 //        TreeNode treeNode1 = new TreeNode();
