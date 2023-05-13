@@ -42,21 +42,23 @@ function appendTreeNode(parentNode, treeNode) {
         ruleDiv.textContent = `(${treeNode.rule})`;
         ruleContainer.appendChild(ruleDiv);
 
+        if (treeNode.children && treeNode.children.length > 0) {
+            var childrenDiv = document.createElement('div');
+            childrenDiv.className = 'children';
+            treeNode.children.forEach(child => {
+                appendTreeNode(childrenDiv, child);
+            });
+            newNodeDiv.appendChild(childrenDiv);
+        }
+
         // Wait for the elements to be rendered to get their widths
         setTimeout(function() {
             // Set the width of the rule line to be the same as the theorem text
-            ruleLine.style.width = Math.max(theoremDiv.offsetWidth, newNodeDiv.offsetWidth) + 'px';
+            var max_width = Math.max(theoremDiv.offsetWidth, newNodeDiv.offsetWidth);
+            ruleLine.style.width = max_width + 'px';
+            // childrenDiv.style.gap = ruleDiv.offsetWidth + 15 + 'px'
         }, 0);
     }
 
     parentNode.appendChild(newNodeDiv);
-
-    if (treeNode.children && treeNode.children.length > 0) {
-        var childrenDiv = document.createElement('div');
-        childrenDiv.className = 'children';
-        treeNode.children.forEach(child => {
-            appendTreeNode(childrenDiv, child);
-        });
-        newNodeDiv.appendChild(childrenDiv);
-    }
 }
