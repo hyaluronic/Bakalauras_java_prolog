@@ -9,10 +9,34 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+import static java.util.Map.entry;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 public class PrologQuery {
+
+    Map<String, String> rules = Map.ofEntries(
+            entry("and_left", "∧=>"),
+            entry("and_right", "=>∧"),
+            entry("or_left", "∨=>"),
+            entry("or_right", "=>∨"),
+            entry("neg_left", "¬=>"),
+            entry("neg_rigth", "=>¬"),
+            entry("impl_left", "⊃=>"),
+            entry("impl_right", "=>⊃"),
+            entry("always_left", "□=>"),
+            entry("always_right", "=>□"),
+            entry("next", "◯")
+    );
+
+    Map<String, String> operations = Map.ofEntries(
+            entry(" and ", " ∧ "),
+            entry(" or ", " ∨ "),
+            entry(" neg ", " ¬"),
+            entry(" impl ", " ⊃ "),
+            entry(" always ", " □"),
+            entry(" next ", " ◯")
+    );
 
     public TreeNode queryProve(String theorem) {
         JPL.init();
@@ -29,67 +53,121 @@ public class PrologQuery {
         }
 
         TreeNode root = new TreeNode();
-        root.setName(theorem.replace("[","(").replace("]", ")"));
+        root.setName(parseTheName(theorem.replace("[", "(").replace("]", ")")));
 
         return mapToTreeNode(root, result.get("X"));
     }
 
     private TreeNode mapToTreeNode(TreeNode root, Term x) {
-        TreeNode child1 = new TreeNode();
-        Term argument1 = x.arg(1);
-        root.setRule(argument1.arg(2).toString());
-        child1.setName(parseTheTerm(argument1.arg(1)));
+        Term[] terms = x.listToTermArray();
 
-        Term argument2 = x.arg(2).arg(1);
-        if (!argument2.isAtom() && !argument2.arg(1).isAtom()) {
-            mapToTreeNode(child1, argument2);
-        }
-        root.addChild(child1);
+        // If x has two arguments
+        if (terms.length == 2) {
+            TreeNode child = new TreeNode();
+            Term arg1 = terms[0];
 
-        try {
-            TreeNode child2 = new TreeNode();
-            Term argument3 = x.arg(2).arg(2).arg(1);
-            root.setRule(argument3.arg(2).toString());
-            child2.setName(parseTheTerm(argument3.arg(1)));
+            root.setRule(parseTheRule(arg1.arg(2).toString()));
+            child.setName(parseTheName(parseTheTerm(arg1.arg(1))));
 
-            Term argument4 = x.arg(2).arg(2).arg(2).arg(1);
-            if (!argument4.isAtom() && !argument4.arg(1).isAtom()) {
-                mapToTreeNode(child2, argument4);
+            // Recursively process the child node if it's not an atom
+            Term arg2 = terms[1];
+            if (!arg2.isAtom()) {
+                mapToTreeNode(child, arg2);
             }
-            root.addChild(child2);
-        } catch (Exception e) {
+
+            root.addChild(child);
+        }
+        // If x has four arguments
+        else if (terms.length == 4) {
+            TreeNode leftChild = new TreeNode();
+            TreeNode rightChild = new TreeNode();
+
+            Term arg1 = terms[0];
+            Term arg3 = terms[2];
+
+            root.setRule(parseTheRule(arg1.arg(2).toString()));
+            leftChild.setName(parseTheName(parseTheTerm(arg1.arg(1))));
+            rightChild.setName(parseTheName(parseTheTerm(arg3.arg(1))));
+
+            // Recursively process the left child node if it's not an atom
+            Term arg2 = terms[1];
+            if (!arg2.isAtom()) {
+                mapToTreeNode(leftChild, arg2);
+            }
+
+            // Recursively process the right child node if it's not an atom
+            Term arg4 = terms[3];
+            if (!arg4.isAtom()) {
+                mapToTreeNode(rightChild, arg4);
+            }
+
+            root.addChild(leftChild);
+            root.addChild(rightChild);
         }
         return root;
     }
 
-    private String parseTheTerm(Term argument) {
-        return argument.arg(1).toString().replace("[","(").replace("]", ")")
-                + argument.name()
-                + argument.arg(2).toString().replace("[","(").replace("]", ")") ;
+    private String parseTheRule(String rule) {
+        return rules.get(rule);
     }
 
+    private String parseTheTerm(Term argument) {
+        if (argument.arity() == 0) {
+            return argument.name();
+        }
 
-//    private TreeNode mapToTreeNode(TreeNode root, Term x) {
-//        TreeNode child = new TreeNode();
-//        for (int i = 1; i <= x.arity(); i++) {
-//            Term argument = x.arg(i);
-//            if (i % 2 == 1) {
-//                child = new TreeNode();
-//                root.addChild(child);
-//            }
-//            if (argument.isAtom() || argument.arg(1).isAtom()) {
-//                continue;
-//            }
-//            else if (!argument.isList()) {
-//                root.setRule(argument.arg(2).toString());
-//                child.setValue(argument.arg(1).toString());
-//            } else if (argument.arg(1).isList()){
-//                mapToTreeNode(child, argument.arg(1));
-//            } else {
-//                mapToTreeNode(child, argument);
-//            }
-//        }
-//
-//        return root;
-//    }
+        StringBuilder leftString = new StringBuilder();
+        if (argument.arg(1).isList()) {
+            Term[] leftTerms = argument.arg(1).listToTermArray();
+            for (Term arg : leftTerms) {
+                leftString.append(", ").append(parseTheTerm(arg));
+            }
+            leftString = leftString.delete(0,2);
+        } else if (argument.arg(1).arity() == 2) {
+            leftString.append(parseTheTerm(argument.arg(2)));
+        }  else {
+            leftString.append(argument.arg(1));
+        }
+
+        StringBuilder rightString = new StringBuilder();
+        if (argument.arity() == 2) {
+            if (argument.arg(2).isList()) {
+                Term[] rightTerms = argument.arg(2).listToTermArray();
+                for (Term arg : rightTerms) {
+                    rightString.append(", ").append(parseTheTerm(arg));
+                }
+                rightString = rightString.delete(0,2);
+            } else if (argument.arg(2).arity() == 2) {
+                rightString.append(parseTheTerm(argument.arg(2)));
+            } else {
+                rightString.append(argument.arg(2));
+            }
+        }
+
+        // Construct the final string
+        String finalString;
+        if (argument.arity() == 2) {
+            if (argument.name().equals("=>")) {
+                finalString =  "(" + leftString + ") " + argument.name() + "(" + rightString + ")";
+            } else {
+                finalString = leftString + " " + argument.name() + " " + rightString;
+            }
+        } else {
+            finalString = argument.name() + " " + leftString;
+        }
+
+        // If the argument was a list, wrap it in parentheses
+        if (!argument.name().equals("=>")) {
+            finalString = "(" + finalString + ")";
+        }
+
+        return finalString;
+    }
+
+    private String parseTheName(String name) {
+        for (Map.Entry<String, String> entry : operations.entrySet()) {
+            name = name.replaceAll(entry.getKey(), entry.getValue());
+        }
+        return name;
+    }
 }

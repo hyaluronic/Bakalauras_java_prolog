@@ -1,125 +1,25 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Sequent Calculus Visualizer</title>
-<!--    <link rel="stylesheet" th:href="@{/css/visualizer.css}" />-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.4/d3.min.js"></script>
-    <script src="https://d3js.org/d3-hierarchy.v1.min.js"></script>
-<!--    <script th:src="@{/js/visualizer.js}"></script>-->
-    <style>
-
-	.node circle {
-	  fill: #fff;
-	  stroke: steelblue;
-	  stroke-width: 3px;
-	}
-
-	.node text { font: 12px sans-serif; }
-
-	.link {
-	  fill: none;
-	  stroke: #ccc;
-	  stroke-width: 2px;
-	}
-
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theorem Prover</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<div id="tree-container"></div>
-<script>
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch("/theorem")
-                .then(response => response.json())
-                .then(data => {
-                    visualizeTree(data, document.getElementById("tree-container"));
-                });
-        });
-
-// ************** Generate the tree diagram	 *****************
-function visualizeTree (treeData, container) {
-    var margin = {top: 40, right: 120, bottom: 20, left: 120},
-        width = 960 - margin.right - margin.left,
-        height = 500 - margin.top - margin.bottom;
-
-    var i = 0;
-
-    var tree = d3.tree()
-        .size([height, width])
-        .separation(function separation(a, b) { return a.parent == b.parent ? 200 : 2; });
-    console.log(tree);
-    console.log(treeData);
-
-    var diagonal = d3.linkHorizontal()
-        .x(function(d) { return d.y; })
-        .y(function(d) { return d.x; });
-
-    var svg = d3.select(container).append("svg")
-        .attr("width", width + margin.right + margin.left)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    root = d3.hierarchy(treeData);
-    console.log(root);
-
-    update(root);
-
-    function update(source) {
-        // Compute the new tree layout.
-        var nodes = source.descendants(),
-            links = source.links();
-
-        // Normalize for fixed-depth.
-        nodes.forEach(function(d) { d.y = d.depth * 100;
-                                    d.x = d.height * 100; });
-
-        // Declare the nodes…
-        var node = svg.selectAll("g.node")
-          .data(nodes, function(d) { return d.id || (d.id = ++i); });
-
-        // Enter the nodes.
-        var nodeEnter = node.enter().append("g")
-          .attr("class", "node")
-          .attr("transform", function(d) {
-              return "translate(" + d.y + "," + d.x + ")"; });
-
-        nodeEnter.append("text")
-            .attr("y", function(d) {
-              return d.children || d._children ? -18 : 18; })
-            .attr("dy", ".35em")
-            .attr("text-anchor", "middle")
-            .text(function(d) { return d.data.name; })
-            .style("fill-opacity", 1);
-
-        nodeEnter.append("text")
-            .attr("y", function(d) {
-              return d.children || d._children ? -32 : 32; })
-            .attr("x", function(d) {
-              return d.x })
-            .attr("dy", ".35em")
-            .attr("text-anchor", "right")
-            .text(function(d) { return d.data.rule; })
-            .style("fill-opacity", 1);
-
-        nodeEnter.append('line')
-            .style("stroke", "#000")
-            .attr("y1", function(d) {
-              return d.children || d._children ? -32 : 32; })
-            .attr("y2", function(d) {
-              return d.children || d._children ? -32 : 32; })
-            .attr("x1", -100)
-            .attr("x2", 100);
-
-        // Declare the links…
-        var link = svg.selectAll("path.link")
-          .data(links, function(d) { return d.target.id; });
-
-        // Enter the links.
-        link.enter().insert("path", "g")
-          .attr("class", "link")
-          .attr("d", diagonal);
-    }
-}
-</script>
+<div class="theorem-input">
+    <button type="button" onclick="appendOperation('and')">∧</button>
+    <button type="button" onclick="appendOperation('or')">∨</button>
+    <button type="button" onclick="appendOperation('not')">¬</button>
+    <button type="button" onclick="appendOperation('always')">□</button>
+    <button type="button" onclick="appendOperation('next')">◯</button>
+    <button type="button" onclick="appendOperation('->')">⊃</button>
+    <button type="button" onclick="appendOperation('=>')">=></button>
+    <br/>
+    <input type="text" id="theorem" placeholder="Enter theorem here..." />
+    <button type="button" onclick="submitTheorem()">Submit</button>
+</div>
+<div id="theorem-tree" class="theorem-tree"></div>
+<script src="/js/theorem-prover.js"></script>
 </body>
 </html>
