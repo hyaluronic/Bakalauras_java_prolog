@@ -1,5 +1,16 @@
 function appendOperation(op) {
-    document.getElementById('theorem').value += ' ' + op + ' ';
+    var theoremInput = document.getElementById('theorem');
+    var start = theoremInput.selectionStart;
+    var end = theoremInput.selectionEnd;
+    var theoremValue = theoremInput.value;
+
+    if (start || start === 0) {
+        theoremInput.value = theoremValue.slice(0, start) + ' ' + op + ' ' + theoremValue.slice(end);
+        theoremInput.selectionStart = start + op.length;
+        theoremInput.selectionEnd = start + op.length;
+    } else {
+        theoremInput.value += ' ' + op + ' ';
+    }
 }
 
 function submitTheorem() {
@@ -11,11 +22,20 @@ function submitTheorem() {
         },
         body: theorem,
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             var theoremTreeDiv = document.getElementById('theorem-tree');
             theoremTreeDiv.innerHTML = '';
             appendTreeNode(theoremTreeDiv, data);
+        })
+        .catch(error => {
+            var theoremTreeDiv = document.getElementById('theorem-tree');
+            theoremTreeDiv.innerHTML = 'Not valid';
         });
 }
 

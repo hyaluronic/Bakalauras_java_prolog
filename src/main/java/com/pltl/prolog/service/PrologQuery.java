@@ -49,7 +49,7 @@ public class PrologQuery {
         Map<String, Term> result = Query.oneSolution(String.format("prove(%s, X)", theorem));
 
         if (isEmpty(result)) {
-            return new TreeNode();
+            throw new IllegalArgumentException("Theorem is not valid");
         }
 
         TreeNode root = new TreeNode();
