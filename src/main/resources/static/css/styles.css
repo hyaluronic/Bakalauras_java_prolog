@@ -42,9 +42,8 @@ body {
 .tree-node .rule {
     font-size: 0.8rem;
     color: #999;
-    margin-top: 1rem;
     position: relative;
-    padding-left: 10px;
+    margin-left: 1px;
 }
 
 .tree-node .rule::before {
@@ -52,6 +51,17 @@ body {
     position: absolute;
     top: 50%;
     left: 0;
-    width: calc(100% - 10px);
-    border-top: 1px solid #000;
+    border-top: 1px solid #000; /* make the line thicker */
+}
+
+.tree-node .rule-line {
+    position: relative;
+    height: 2px;
+    background-color: #000;
+    flex-grow: 1;
+}
+
+.tree-node .rule-container {
+    display: flex;
+    align-items: center;
 }

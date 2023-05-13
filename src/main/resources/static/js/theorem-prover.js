@@ -28,10 +28,25 @@ function appendTreeNode(parentNode, treeNode) {
     newNodeDiv.appendChild(theoremDiv);
 
     if (treeNode.rule) {
+        var ruleContainer = document.createElement('div');
+        ruleContainer.className = 'rule-container';
+        newNodeDiv.appendChild(ruleContainer);
+
+        // Create the rule line
+        var ruleLine = document.createElement('div');
+        ruleLine.className = 'rule-line';
+        ruleContainer.appendChild(ruleLine);
+
         var ruleDiv = document.createElement('div');
         ruleDiv.className = 'rule';
         ruleDiv.textContent = `(${treeNode.rule})`;
-        newNodeDiv.appendChild(ruleDiv);
+        ruleContainer.appendChild(ruleDiv);
+
+        // Wait for the elements to be rendered to get their widths
+        setTimeout(function() {
+            // Set the width of the rule line to be the same as the theorem text
+            ruleLine.style.width = Math.max(theoremDiv.offsetWidth, newNodeDiv.offsetWidth) + 'px';
+        }, 0);
     }
 
     parentNode.appendChild(newNodeDiv);

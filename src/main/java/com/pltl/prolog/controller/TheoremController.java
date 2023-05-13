@@ -25,6 +25,7 @@ public class TheoremController {
 //        theorem = "[a or b] => [a,b,c,d,e,r]";
 //        theorem = "[c or (a or b)] => [a,b,c]";
 //        theorem = "[(c or b) or (a or b)] => [a,b,c]";
+//        theorem = "[((c or a) or (a or b)) or (a or b)] => [a,b,c]";
         return prologQuery.queryProve(theorem);
     }
 }
