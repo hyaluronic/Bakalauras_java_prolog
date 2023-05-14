@@ -13,7 +13,7 @@ import static java.util.Map.entry;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
-public class PrologQuery {
+public class PrologService {
 
     Map<String, String> rules = Map.ofEntries(
             entry("and_left", "∧=>"),
@@ -46,6 +46,8 @@ public class PrologQuery {
         Query consult_query = new Query("consult", consult_arg);
         consult_query.allSolutions();
 
+        theorem = getParsedTheorem(theorem);
+
         Map<String, Term> result = Query.oneSolution(String.format("prove(%s, X)", theorem));
 
         if (isEmpty(result)) {
@@ -56,6 +58,31 @@ public class PrologQuery {
         root.setName(parseTheName(theorem.replace("[", "(").replace("]", ")")));
 
         return mapToTreeNode(root, result.get("X"));
+    }
+
+    private String getParsedTheorem(String theorem) {
+        for (Map.Entry<String, String> entry : operations.entrySet()) {
+            theorem = theorem.replaceAll(entry.getValue(), entry.getKey());
+        }
+        String[] cendents = theorem.split("=>");
+        return parseCendent(cendents[0]) + "=>" + parseCendent(cendents[1]);
+    }
+
+    private String parseCendent(String cendent) {
+        cendent = cendent.trim();
+        if (cendent.startsWith("(")) {
+            cendent = cendent.substring(1);
+        }
+        if (!cendent.startsWith("[")) {
+            cendent = "[" + cendent;
+        }
+        if (cendent.endsWith(")")) {
+            cendent = cendent.substring(0, cendent.length() - 1);
+        }
+        if (!cendent.endsWith("]")) {
+            cendent = cendent + "]";
+        }
+        return cendent;
     }
 
     private TreeNode mapToTreeNode(TreeNode root, Term x) {

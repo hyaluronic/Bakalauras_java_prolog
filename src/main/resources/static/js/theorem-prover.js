@@ -6,12 +6,33 @@ function appendOperation(op) {
 
     if (start || start === 0) {
         theoremInput.value = theoremValue.slice(0, start) + ' ' + op + ' ' + theoremValue.slice(end);
-        theoremInput.selectionStart = start + op.length + 2;
+        theoremInput.selectionStart = start + op.length + 2; // Add 2 for the added spaces
         theoremInput.selectionEnd = start + op.length + 2;
     } else {
         theoremInput.value += ' ' + op + ' ';
     }
 }
+
+var theoremInput = document.getElementById('theorem');
+theoremInput.addEventListener('input', function () {
+    var value = theoremInput.value;
+    var selectionStart = theoremInput.selectionStart;
+    var replacedValue = value
+        .replace(/ and ?/g, ' ∧ ')
+        .replace(/ or ?/g, ' ∨ ')
+        .replace(/ ?neg ?/g, ' ¬')
+        .replace(/ ?always ?/g, ' □')
+        .replace(/ ?next ?/g, ' ◯')
+        .replace(/ impl ?/g, ' ⊃ ')
+        .replace(/ implication ?/g, ' ⊃ ')
+        .replace(/ -> ?/g, ' ⊃ ')
+        .replace(/ ?seq ?/g, ' => ');
+    if (replacedValue !== value) {
+        theoremInput.value = replacedValue;
+        theoremInput.selectionStart = selectionStart - (value.length - replacedValue.length);
+        theoremInput.selectionEnd = theoremInput.selectionStart;
+    }
+});
 
 function handleKeyDown(event) {
     if (event.keyCode === 13 || event.which === 13) {
@@ -79,7 +100,7 @@ function appendTreeNode(parentNode, treeNode) {
         }
 
         // Wait for the elements to be rendered to get their widths
-        setTimeout(function() {
+        setTimeout(function () {
             // Set the width of the rule line to be the same as the theorem text
             var max_width = Math.max(theoremDiv.offsetWidth, newNodeDiv.offsetWidth);
             ruleLine.style.width = max_width + 'px';
