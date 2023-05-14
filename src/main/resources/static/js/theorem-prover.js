@@ -18,15 +18,15 @@ theoremInput.addEventListener('input', function () {
     var value = theoremInput.value;
     var selectionStart = theoremInput.selectionStart;
     var replacedValue = value
-        .replace(/ and ?/g, ' ∧ ')
-        .replace(/ or ?/g, ' ∨ ')
-        .replace(/ ?neg ?/g, ' ¬')
-        .replace(/ ?always ?/g, ' □')
-        .replace(/ ?next ?/g, ' ◯')
-        .replace(/ impl ?/g, ' ⊃ ')
-        .replace(/ implication ?/g, ' ⊃ ')
-        .replace(/ -> ?/g, ' ⊃ ')
-        .replace(/ ?seq ?/g, ' => ');
+        .replace(/ and(?=\s|$)/gi, ' ∧')
+        .replace(/ or(?=\s|$)/gi, ' ∨')
+        .replace(/neg(?=\s|$)/gi, '¬')
+        .replace(/always(?=\s|$)/gi, '□')
+        .replace(/next(?=\s|$)/gi, '◯')
+        .replace(/impl(?=\s|$)/gi, '⊃')
+        .replace(/implication(?=\s|$)/gi, '⊃')
+        .replace(/->(?=\s|$)/gi, '⊃')
+        .replace(/seq(?=\s|$)/gi, '=>');
     if (replacedValue !== value) {
         theoremInput.value = replacedValue;
         theoremInput.selectionStart = selectionStart - (value.length - replacedValue.length);

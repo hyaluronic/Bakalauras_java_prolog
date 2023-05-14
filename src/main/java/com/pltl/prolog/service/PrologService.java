@@ -32,10 +32,19 @@ public class PrologService {
     Map<String, String> operations = Map.ofEntries(
             entry(" and ", " ∧ "),
             entry(" or ", " ∨ "),
-            entry(" neg ", " ¬"),
+            entry(" ?neg ?", " ¬"),
             entry(" impl ", " ⊃ "),
-            entry(" always ", " □"),
-            entry(" next ", " ◯")
+            entry(" ?always ?", " □"),
+            entry(" ?next ?", " ◯")
+    );
+
+    Map<String, String> operationsToProlog = Map.ofEntries(
+            entry(" and ", "∧"),
+            entry(" or ", "∨"),
+            entry(" neg ", "¬"),
+            entry(" impl ", "⊃"),
+            entry(" always ", "□"),
+            entry(" next ", "◯")
     );
 
     public TreeNode queryProve(String theorem) {
@@ -61,11 +70,12 @@ public class PrologService {
     }
 
     private String getParsedTheorem(String theorem) {
-        for (Map.Entry<String, String> entry : operations.entrySet()) {
-            theorem = theorem.replaceAll(entry.getValue(), entry.getKey());
+        theorem = theorem.toLowerCase();
+        for (Map.Entry<String, String> entry : operationsToProlog.entrySet()) {
+            theorem = theorem.toLowerCase().replaceAll(entry.getValue(), entry.getKey());
         }
         String[] cendents = theorem.split("=>");
-        return parseCendent(cendents[0]) + "=>" + parseCendent(cendents[1]);
+        return (parseCendent(cendents[0]) + "=>" + parseCendent(cendents[1]));
     }
 
     private String parseCendent(String cendent) {
@@ -195,6 +205,6 @@ public class PrologService {
         for (Map.Entry<String, String> entry : operations.entrySet()) {
             name = name.replaceAll(entry.getKey(), entry.getValue());
         }
-        return name;
+        return name.toUpperCase();
     }
 }
