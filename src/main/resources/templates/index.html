@@ -8,16 +8,17 @@
 </head>
 <body>
 <div class="theorem-input">
-    <button type="button" onclick="appendOperation('and')">∧</button>
-    <button type="button" onclick="appendOperation('or')">∨</button>
-    <button type="button" onclick="appendOperation('not')">¬</button>
-    <button type="button" onclick="appendOperation('always')">□</button>
-    <button type="button" onclick="appendOperation('next')">◯</button>
-    <button type="button" onclick="appendOperation('->')">⊃</button>
-    <button type="button" onclick="appendOperation('=>')">=></button>
-    <br/>
-    <input type="text" id="theorem" placeholder="Enter theorem here..." />
-    <button type="button" onclick="submitTheorem()">Submit</button>
+    <div class="operation-buttons">
+        <button type="button" onclick="appendOperation('and')">∧</button>
+        <button type="button" onclick="appendOperation('or')">∨</button>
+        <button type="button" onclick="appendOperation('not')">¬</button>
+        <button type="button" onclick="appendOperation('always')">□</button>
+        <button type="button" onclick="appendOperation('next')">◯</button>
+        <button type="button" onclick="appendOperation('impl')">⊃</button>
+        <button type="button" onclick="appendOperation('=>')">=></button>
+    </div>
+    <input type="text" id="theorem" placeholder="Enter theorem here..." onkeydown="handleKeyDown(event)" />
+    <button type="button" onclick="submitTheorem()" class="button-submit">Submit</button>
 </div>
 <div id="theorem-tree" class="theorem-tree"></div>
 <script src="/js/theorem-prover.js"></script>

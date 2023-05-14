@@ -6,10 +6,17 @@ function appendOperation(op) {
 
     if (start || start === 0) {
         theoremInput.value = theoremValue.slice(0, start) + ' ' + op + ' ' + theoremValue.slice(end);
-        theoremInput.selectionStart = start + op.length;
-        theoremInput.selectionEnd = start + op.length;
+        theoremInput.selectionStart = start + op.length + 2;
+        theoremInput.selectionEnd = start + op.length + 2;
     } else {
         theoremInput.value += ' ' + op + ' ';
+    }
+}
+
+function handleKeyDown(event) {
+    if (event.keyCode === 13 || event.which === 13) {
+        event.preventDefault();
+        submitTheorem();
     }
 }
 
