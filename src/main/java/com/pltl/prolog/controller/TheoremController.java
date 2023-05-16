@@ -19,6 +19,8 @@ public class TheoremController {
 
     @PostMapping
     public TreeNode validateTheorem(@RequestBody String theorem) {
+        long startTime = System.currentTimeMillis();
+        System.out.println("STARTED");
 //        theorem = "[c, g, neg p, a, p, d] => [s]";
 //        theorem = "[c and g, neg s, a and b,  p, d] => [b and p and a, b, a]";
 //        theorem = "[a, b] => [a and b,c,d,e,r]";
@@ -26,6 +28,10 @@ public class TheoremController {
 //        theorem = "[c or (a or b)] => [a,b,c]";
 //        theorem = "[(c or b) or (a or b)] => [a,b,c]";
 //        theorem = "[((c or a) or (a or b)) or (a or b)] => [a,b,c]";
-        return prologService.queryProve(theorem);
+        TreeNode result = prologService.queryProve(theorem);
+
+        System.out.println(String.format("QUERY TOOK: %s ms", System.currentTimeMillis() - startTime));
+
+        return result;
     }
 }

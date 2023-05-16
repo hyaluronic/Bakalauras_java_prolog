@@ -160,8 +160,8 @@ public class PrologService {
                 leftString.append(", ").append(parseTheTerm(arg));
             }
             leftString = leftString.delete(0,2);
-        } else if (argument.arg(1).arity() == 2) {
-            leftString.append(parseTheTerm(argument.arg(2)));
+        } else if (argument.arg(1).arity() > 0) {
+            leftString.append(parseTheTerm(argument.arg(1)));
         }  else {
             leftString.append(argument.arg(1));
         }
