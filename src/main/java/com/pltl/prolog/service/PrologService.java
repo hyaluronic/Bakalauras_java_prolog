@@ -5,8 +5,11 @@ import org.jpl7.Atom;
 import org.jpl7.JPL;
 import org.jpl7.Query;
 import org.jpl7.Term;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.util.Map;
 
 import static java.util.Map.entry;
@@ -14,6 +17,8 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 public class PrologService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PrologService.class);
 
     Map<String, String> rules = Map.ofEntries(
             entry("and_left", "∧=>"),
@@ -48,25 +53,51 @@ public class PrologService {
     );
 
     public TreeNode queryProve(String theorem) {
-        JPL.init();
-        Term consult_arg[] = {
-                new Atom("C:/Users/user/Desktop/UNI/8 semestras/Bakalauras/Programa/bakalauras.pl")
-        };
-        Query consult_query = new Query("consult", consult_arg);
-        consult_query.allSolutions();
+        try {
+            JPL.init();
 
-        theorem = getParsedTheorem(theorem);
+            Term consult_arg[] = {
+                    new Atom("C:/Users/user/Desktop/UNI/8_semestras/Bakalauras_java_prolog/src/main/resources/prolog/bakalauras.pl")//Todo:
+            };
+            Query consult_query = new Query("consult", consult_arg);
+            consult_query.oneSolution();
 
-        Map<String, Term> result = Query.oneSolution(String.format("prove(%s, X)", theorem));
+            theorem = getParsedTheorem(theorem);
 
-        if (isEmpty(result)) {
-            throw new IllegalArgumentException("Theorem is not valid");
+            Map<String, Term> result = Query.oneSolution(String.format("prove(%s, X)", theorem));
+
+            if (isEmpty(result)) {
+                throw new IllegalArgumentException("Theorem is not valid");
+            }
+
+            TreeNode root = new TreeNode();
+            root.setName(parseTheName(theorem.replace("[", "(").replace("]", ")")));
+
+            return mapToTreeNode(root, result.get("X"));
+        } catch (Throwable t) {
+            logger.error("FAILED:", t);
+            throw t;
+        }
+    }
+
+    private String getPrologFilePath() throws IOException {
+        // Use getResourceAsStream to get an InputStream for the file within the JAR
+        InputStream is = getClass().getClassLoader().getResourceAsStream("prolog/bakalauras.pl");
+
+        // Create a temporary file
+        File temp = File.createTempFile("tempfile", ".pl");
+
+        // Copy the contents of the InputStream to the temporary file
+        try (FileOutputStream out = new FileOutputStream(temp)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
         }
 
-        TreeNode root = new TreeNode();
-        root.setName(parseTheName(theorem.replace("[", "(").replace("]", ")")));
-
-        return mapToTreeNode(root, result.get("X"));
+        logger.info("TEMP FILE PATH: '{}'", temp.getAbsolutePath());
+        return temp.getAbsolutePath();
     }
 
     private String getParsedTheorem(String theorem) {
@@ -159,10 +190,10 @@ public class PrologService {
             for (Term arg : leftTerms) {
                 leftString.append(", ").append(parseTheTerm(arg));
             }
-            leftString = leftString.delete(0,2);
+            leftString = leftString.delete(0, 2);
         } else if (argument.arg(1).arity() > 0) {
             leftString.append(parseTheTerm(argument.arg(1)));
-        }  else {
+        } else {
             leftString.append(argument.arg(1));
         }
 
@@ -173,7 +204,7 @@ public class PrologService {
                 for (Term arg : rightTerms) {
                     rightString.append(", ").append(parseTheTerm(arg));
                 }
-                rightString = rightString.delete(0,2);
+                rightString = rightString.delete(0, 2);
             } else if (argument.arg(2).arity() == 2) {
                 rightString.append(parseTheTerm(argument.arg(2)));
             } else {
@@ -185,7 +216,7 @@ public class PrologService {
         String finalString;
         if (argument.arity() == 2) {
             if (argument.name().equals("=>")) {
-                finalString =  "(" + leftString + ") " + argument.name() + "(" + rightString + ")";
+                finalString = "(" + leftString + ") " + argument.name() + "(" + rightString + ")";
             } else {
                 finalString = leftString + " " + argument.name() + " " + rightString;
             }
