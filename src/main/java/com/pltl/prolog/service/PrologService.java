@@ -20,13 +20,13 @@ public class PrologService {
 
     private static final Logger logger = LoggerFactory.getLogger(PrologService.class);
 
-    Map<String, String> rules = Map.ofEntries(
+    private static final Map<String, String> rules = Map.ofEntries(
             entry("and_left", "∧=>"),
             entry("and_right", "=>∧"),
             entry("or_left", "∨=>"),
             entry("or_right", "=>∨"),
             entry("neg_left", "¬=>"),
-            entry("neg_rigth", "=>¬"),
+            entry("neg_right", "=>¬"),
             entry("impl_left", "⊃=>"),
             entry("impl_right", "=>⊃"),
             entry("always_left", "□=>"),
@@ -34,7 +34,7 @@ public class PrologService {
             entry("next", "◯")
     );
 
-    Map<String, String> operations = Map.ofEntries(
+    private static final Map<String, String> operations = Map.ofEntries(
             entry(" and ", " ∧ "),
             entry(" or ", " ∨ "),
             entry(" ?neg ?", " ¬"),
@@ -43,7 +43,7 @@ public class PrologService {
             entry(" ?next ?", " ◯")
     );
 
-    Map<String, String> operationsToProlog = Map.ofEntries(
+    private static final Map<String, String> operationsToProlog = Map.ofEntries(
             entry(" and ", "∧"),
             entry(" or ", "∨"),
             entry(" neg ", "¬"),
@@ -57,7 +57,7 @@ public class PrologService {
             JPL.init();
 
             Term consult_arg[] = {
-                    new Atom("C:/Users/user/Desktop/UNI/8_semestras/Bakalauras_java_prolog/src/main/resources/prolog/bakalauras.pl")//Todo:
+                    new Atom("src/main/resources/prolog/bakalauras.pl")
             };
             Query consult_query = new Query("consult", consult_arg);
             consult_query.oneSolution();
@@ -111,17 +111,11 @@ public class PrologService {
 
     private String parseCendent(String cendent) {
         cendent = cendent.trim();
-        if (cendent.startsWith("(")) {
-            cendent = cendent.substring(1);
+        if (cendent.startsWith("(") && cendent.endsWith(")")) {
+            cendent = cendent.substring(1, cendent.length() - 1);
         }
-        if (!cendent.startsWith("[")) {
-            cendent = "[" + cendent;
-        }
-        if (cendent.endsWith(")")) {
-            cendent = cendent.substring(0, cendent.length() - 1);
-        }
-        if (!cendent.endsWith("]")) {
-            cendent = cendent + "]";
+        if (!cendent.startsWith("[") && !cendent.endsWith("]")) {
+            cendent = "[" + cendent + "]";
         }
         return cendent;
     }
@@ -129,7 +123,6 @@ public class PrologService {
     private TreeNode mapToTreeNode(TreeNode root, Term x) {
         Term[] terms = x.listToTermArray();
 
-        // If x has two arguments
         if (terms.length == 2) {
             TreeNode child = new TreeNode();
             Term arg1 = terms[0];
@@ -137,16 +130,14 @@ public class PrologService {
             root.setRule(parseTheRule(arg1.arg(2).toString()));
             child.setName(parseTheName(parseTheTerm(arg1.arg(1))));
 
-            // Recursively process the child node if it's not an atom
+            // Recursively process the child branch if it's not an atom
             Term arg2 = terms[1];
             if (!arg2.isAtom()) {
                 mapToTreeNode(child, arg2);
             }
 
             root.addChild(child);
-        }
-        // If x has four arguments
-        else if (terms.length == 4) {
+        } else if (terms.length == 4) {
             TreeNode leftChild = new TreeNode();
             TreeNode rightChild = new TreeNode();
 
@@ -157,13 +148,13 @@ public class PrologService {
             leftChild.setName(parseTheName(parseTheTerm(arg1.arg(1))));
             rightChild.setName(parseTheName(parseTheTerm(arg3.arg(1))));
 
-            // Recursively process the left child node if it's not an atom
+            // Recursively process the left child branch if it's not an atom
             Term arg2 = terms[1];
             if (!arg2.isAtom()) {
                 mapToTreeNode(leftChild, arg2);
             }
 
-            // Recursively process the right child node if it's not an atom
+            // Recursively process the right child branch if it's not an atom
             Term arg4 = terms[3];
             if (!arg4.isAtom()) {
                 mapToTreeNode(rightChild, arg4);
@@ -176,7 +167,14 @@ public class PrologService {
     }
 
     private String parseTheRule(String rule) {
-        return rules.get(rule);
+        return rules.getOrDefault(rule, rule);
+    }
+
+    private String parseTheName(String name) {
+        for (Map.Entry<String, String> entry : operations.entrySet()) {
+            name = name.replaceAll(entry.getKey(), entry.getValue());
+        }
+        return name.toUpperCase();
     }
 
     private String parseTheTerm(Term argument) {
@@ -224,18 +222,10 @@ public class PrologService {
             finalString = argument.name() + " " + leftString;
         }
 
-        // If the argument was a list, wrap it in parentheses
         if (!argument.name().equals("=>")) {
             finalString = "(" + finalString + ")";
         }
 
         return finalString;
-    }
-
-    private String parseTheName(String name) {
-        for (Map.Entry<String, String> entry : operations.entrySet()) {
-            name = name.replaceAll(entry.getKey(), entry.getValue());
-        }
-        return name.toUpperCase();
     }
 }
