@@ -80,6 +80,7 @@ public class PrologService {
         }
     }
 
+    // Used for prolog file reading in unknown system (for .jar)
     private String getPrologFilePath() throws IOException {
         // Use getResourceAsStream to get an InputStream for the file within the JAR
         InputStream is = getClass().getClassLoader().getResourceAsStream("prolog/bakalauras.pl");
