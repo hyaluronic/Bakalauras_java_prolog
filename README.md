@@ -1,6 +1,6 @@
 # Baigiamasis bakalauro darbas - Automatinio įrodymo sistema laiko logikai (angl. _Automated theorem prover for temporal logic_)
 
-Faile https://github.com/hyaluronic/Bakalauras_java_prolog/raw/master/src/main/resources/jar/prolog-0.0.1-SNAPSHOT.jar yra pateikiamas pagrindinis teoremų įrodymo algoritmas.
+Faile https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/resources/jar/prolog-0.0.1-SNAPSHOT.jar yra pateikiamas pagrindinis teoremų įrodymo algoritmas.
 
 ## Algoritmo paleidimo per komandinę eilutę instrukcija (darant pažingsniui užtruksite apie 5 min.):
 1. Operacinė sistema turi būti Windows 10 ar naujesnė;
