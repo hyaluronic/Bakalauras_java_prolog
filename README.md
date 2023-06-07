@@ -1,6 +1,20 @@
-# Baigiamasis bakalauro darbas - Automatinio įrodymo sistema laiko logikai (angl. _Automated theorem prover for temporal logic_)
+# Baigiamasis bakalauro darbas - Automatinio įrodymo sistema laiko logikai. (angl. _Final bachelor thesis - Automated theorem prover for temporal logic_)
 
-Faile [https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/resources/prolog/bakalauras.pl](https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/resources/prolog/bakalauras.pl) yra pateikiamas pagrindinis teoremų įrodymo algoritmas.
+This is theorem prover system for PLTL, implemented rules from calculi G<sub>L</sub>T PLTL<sup>n,a</sup> 
+(used articles by R. Alonderis, R. Pliuškevičius, A. Pliuškevičienė & H. Giedra _Loop-Type Sequent Calculi for Temporal Logic_ year 2020 (DOI 10.1007/s10817-020-09544-1) and
+_Loop-Check Specification for a Sequent Calculi_ year 2022 (DOI 10.1007/s11225-022-10010-9))
+
+
+Faile [bakalauras.pl](https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/resources/prolog/bakalauras.pl) yra pateikiamas pagrindinis teoremų įrodymo algoritmas.
+(angl. _Main proving algorithm is found in [bakalauras.pl](https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/resources/prolog/bakalauras.pl)_).
+
+Sistemos grafinio vizualizavimo funkcionalumą galima pritaikyti ir naudoti visų sekvencinių skaičiavimų išvedimo medžiam vizualizuoti.
+(angl. _Sequential tree visual implementation made with _JavaScript_ and _css_ can be used for any sequential tree representation, not only for PLTL.
+All that needs to be changed is [PrologService](https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/java/com/pltl/prolog/service/PrologService.java) to different sequential calculi algorithm implementation, 
+and parsing to [TreeNode](https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/java/com/pltl/prolog/model/TreeNode.java) object adjusted accordingly._) 
+
+![Sequential tree visualization example](https://github.com/hyaluronic/Bakalauras_java_prolog/blob/master/src/main/resources/img/sequential_tree_example.png?raw=true)
+*1 img. Sequential tree visualization example.*
 
 ## Algoritmo paleidimo per komandinę eilutę instrukcija (darant pažingsniui užtruksite apie 5 min.):
 1. Operacinė sistema turi būti Windows 10 ar naujesnė;
