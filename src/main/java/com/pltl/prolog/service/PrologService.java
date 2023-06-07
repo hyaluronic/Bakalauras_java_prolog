@@ -54,14 +54,6 @@ public class PrologService {
 
     public TreeNode queryProve(String theorem) {
         try {
-            JPL.init();
-
-            Term consult_arg[] = {
-                    new Atom("src/main/resources/prolog/bakalauras.pl")
-            };
-            Query consult_query = new Query("consult", consult_arg);
-            consult_query.oneSolution();
-
             theorem = getParsedTheorem(theorem);
 
             Map<String, Term> result = Query.oneSolution(String.format("prove(%s, X)", theorem));
@@ -78,27 +70,6 @@ public class PrologService {
             logger.error("FAILED:", t);
             throw t;
         }
-    }
-
-    // Used for prolog file reading in unknown system (for .jar)
-    private String getPrologFilePath() throws IOException {
-        // Use getResourceAsStream to get an InputStream for the file within the JAR
-        InputStream is = getClass().getClassLoader().getResourceAsStream("prolog/bakalauras.pl");
-
-        // Create a temporary file
-        File temp = File.createTempFile("tempfile", ".pl");
-
-        // Copy the contents of the InputStream to the temporary file
-        try (FileOutputStream out = new FileOutputStream(temp)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = is.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-            }
-        }
-
-        logger.info("TEMP FILE PATH: '{}'", temp.getAbsolutePath());
-        return temp.getAbsolutePath();
     }
 
     private String getParsedTheorem(String theorem) {
